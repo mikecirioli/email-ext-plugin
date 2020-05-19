@@ -11,6 +11,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Mailer;
 import hudson.tasks.Publisher;
 import hudson.util.FormValidation;
+import hudson.util.ReflectionUtils;
 import hudson.util.Secret;
 import jenkins.model.Jenkins;
 import jenkins.model.JenkinsLocationConfiguration;
@@ -34,6 +35,7 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringReader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -816,8 +818,19 @@ public final class ExtendedEmailPublisherDescriptor extends BuildStepDescriptor<
     }
 
     @NonNull
-    @Override
+    // TODO: Add @Override when Jenkins core baseline is 2.222+
     public Permission getRequiredGlobalConfigPagePermission() {
-        return Jenkins.MANAGE;
+        return getJenkinsManageOrAdmin();
+    }
+
+    // TODO: remove when Jenkins core baseline is 2.222+
+    public static Permission getJenkinsManageOrAdmin() {
+        Permission manage;
+        try { // Manage is available starting from Jenkins 2.222 (https://jenkins.io/changelog/#v2.222). See JEP-223 for more info
+            manage = (Permission) ReflectionUtils.getPublicProperty(Jenkins.get(), "MANAGE");
+        } catch (IllegalArgumentException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            manage = Jenkins.ADMINISTER;
+        }
+        return manage;
     }
 }
