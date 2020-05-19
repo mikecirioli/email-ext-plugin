@@ -32,6 +32,8 @@
         <hpi.compatibleSinceVersion>2.57.2</hpi.compatibleSinceVersion>
         <concurrency>1</concurrency>
         <argLine>-Dfile.encoding=UTF-8</argLine>
+        <!-- To be removed once Jenkins.MANAGE gets out of beta -->
+        <useBeta>true</useBeta>
     </properties>
 
     <developers>
